@@ -37,8 +37,8 @@ public class UserController {
         userService.addUser(user);
     }
     @GetMapping("/otp/generate/{userId}")
-    public ResponseEntity<String> generateOtp(@PathVariable Long userId,@RequestParam("key") String key) throws NoSuchAlgorithmException {
-        String otp = userService.generateOtp(userId, key);
+    public ResponseEntity<String> generateOtp(@PathVariable Long userId) {
+        String otp = userService.generateOtp(userId);
         if(otp == null){
             return new ResponseEntity<>("Unauthorized access",HttpStatus.UNAUTHORIZED);
         }
@@ -48,8 +48,8 @@ public class UserController {
         return ResponseEntity.ok(otp);
     }
     @GetMapping("/otp/validate/{userId}")
-    public ResponseEntity<String> validateOtp(@PathVariable Long userId, @RequestParam("otp") String otp,@RequestParam("key") String key) {
-        if(userService.validateOtp(userId,otp, key) != null) {
+    public ResponseEntity<String> validateOtp(@PathVariable Long userId, @RequestParam("otp") String otp) {
+        if(userService.validateOtp(userId,otp) != null) {
             userService.setValidOtp(userId,otp);
             return ResponseEntity.ok("Valid OTP");
         }

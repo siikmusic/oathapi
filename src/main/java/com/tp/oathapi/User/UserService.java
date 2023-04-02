@@ -29,7 +29,9 @@ public class UserService {
         if(userByEmail.isPresent()) {
             throw new IllegalStateException("email taken");
         }
-        User validUser = new User(user.getUsername(),user.getEmail());
+        User validUser = new User(user.getEmail());
+        String key = validUser.generatePkey();
+
         userRepository.save(validUser);
     }
 
@@ -45,20 +47,14 @@ public class UserService {
         return userOptional.orElse(null);
     }
 
-    public String generateOtp(Long userId, String key) {
+    public String generateOtp(Long userId) {
         Optional<User> userOptional = userRepository.findById(userId);
         if(userOptional.isPresent()) {
             User user = userOptional.get();
 
-            String sha256hex = DigestUtils.sha256Hex(key);
-            System.out.println("key " + key);
-            if(!sha256hex.equals(user.getPkey())) {
-                System.out.println("hashes not equal " + sha256hex);
-                return null;
-            }
             try {
 
-                TOTP totp = new TOTP(key.getBytes(),6,30,15,10);
+                TOTP totp = new TOTP(user.getPkey().getBytes(),6,30,15,10);
                 Calendar calendar = Calendar.getInstance();
                 MailSenderService emailSenderService = new MailSenderService();
                 emailSenderService.sendEmail(user.getEmail(),"OTP",totp.generate(calendar.getTimeInMillis()));
@@ -72,7 +68,7 @@ public class UserService {
         return "";
     }
 
-    public Integer validateOtp(Long userId, String otp, String key) {
+    public Integer validateOtp(Long userId, String otp) {
         Optional<User> userOptional = userRepository.findById(userId);
         if(userOptional.isPresent()) {
             User user = userOptional.get();
@@ -81,16 +77,12 @@ public class UserService {
                     return null;
                 }
             }
+            String key = user.getPkey();
 
             try {
                 TOTP totp = new TOTP(key.getBytes(),6,30,15,10);
                 Calendar calendar = Calendar.getInstance();
 
-                String sha256hex = DigestUtils.sha256Hex(key);
-                if(!sha256hex.equals(user.getPkey())) {
-                    System.out.println("hashes not equal " + key);
-                    return null;
-                }
                 try {
                     return totp.validate(calendar.getTimeInMillis(),otp);
                 } catch (InvalidResponseException e) {
@@ -109,7 +101,8 @@ public class UserService {
     public String generateOcra(OcraRequest request) throws InvalidOcraSuiteException, InvalidDataModeException, InvalidHashException, InvalidCryptoFunctionException, InvalidSessionException, InvalidQuestionException, NoSuchAlgorithmException {
         User user = getUser(request.getUserId());
         if(user == null) return null;
-        if(validateOtp(request.getUserId(),request.getOtp(),request.getKey()) == null){
+        String key = user.getPkey();
+        if(validateOtp(request.getUserId(),request.getOtp()) == null){
             System.out.println("invalid otp");
             return null;
         }
@@ -136,7 +129,8 @@ public class UserService {
 
         OCRA ocra = new OCRA(ocraSuite,request.getKey().getBytes(),0,30,0);
         Calendar calendar = Calendar.getInstance();
-        System.out.println(request.getHash());
+
+
         MailSenderService emailSenderService = new MailSenderService();
         String ocraString = ocra.generate(1,request.getHash(),"","",calendar.getTimeInMillis());
         emailSenderService.sendEmail(user.getEmail(),"Ocra",ocraString);
@@ -151,7 +145,7 @@ public class UserService {
         if(!user.getPkey().equals(sha256hex)) {
             return "unauthorized";
         }
-        if(validateOtp(request.getUserId(),request.getOtp(),request.getKey()) == null){
+        if(validateOtp(request.getUserId(),request.getOtp()) == null){
             System.out.println("invalid otp");
             return null;
         }
