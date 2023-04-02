@@ -46,9 +46,13 @@ public class UserService {
         Optional<User> userOptional = userRepository.findById(id);
         return userOptional.orElse(null);
     }
-
-    public String generateOtp(Long userId) {
-        Optional<User> userOptional = userRepository.findById(userId);
+    public User getUser(String email){
+        if(email == null) return null;
+        Optional<User> userOptional = userRepository.findUserByEmail(email);
+        return userOptional.orElse(null);
+    }
+    public String generateOtp(String email) {
+        Optional<User> userOptional = userRepository.findUserByEmail(email);
         if(userOptional.isPresent()) {
             User user = userOptional.get();
 
@@ -68,8 +72,8 @@ public class UserService {
         return "";
     }
 
-    public Integer validateOtp(Long userId, String otp) {
-        Optional<User> userOptional = userRepository.findById(userId);
+    public Integer validateOtp(String email, String otp) {
+        Optional<User> userOptional = userRepository.findUserByEmail(email);
         if(userOptional.isPresent()) {
             User user = userOptional.get();
             if(user.getLastOtp() != null) {
@@ -102,16 +106,7 @@ public class UserService {
         User user = getUser(request.getUserId());
         if(user == null) return null;
         String key = user.getPkey();
-        if(validateOtp(request.getUserId(),request.getOtp()) == null){
-            System.out.println("invalid otp");
-            return null;
-        }
-        String sha256hex = DigestUtils.sha256Hex(request.getTransactionData());
 
-        if(!sha256hex.equals(request.getHash())) {
-            System.out.println("hashes not equal " + sha256hex);
-            return null;
-        }
         OCRASuite ocraSuite = new OCRASuite("OCRA-1:HOTP-SHA256-8:C-QA08");
         OCRA ocra = new OCRA(ocraSuite,user.getPkey().getBytes(),0,30,0);
         Calendar calendar = Calendar.getInstance();
@@ -145,10 +140,10 @@ public class UserService {
         if(!user.getPkey().equals(sha256hex)) {
             return "unauthorized";
         }
-        if(validateOtp(request.getUserId(),request.getOtp()) == null){
+     /*   if(validateOtp(request.getUserId(),request.getOtp()) == null){
             System.out.println("invalid otp");
             return null;
-        }
+        }*/
 
         OCRA ocra = new OCRA(ocraSuite,user.getPkey().getBytes(),0,30,0);
         Calendar calendar = Calendar.getInstance();
@@ -183,9 +178,12 @@ public class UserService {
         }
     }
 
-    public void setValidOtp(Long userId, String otp) {
-        User user = getUser(userId);
-        user.setLastOtp(otp);
-        userRepository.save(user);
+    public void setValidOtp(String email, String otp) {
+        User user = getUser(email);
+        if(user != null) {
+            user.setLastOtp(otp);
+            userRepository.save(user);
+        }
+
     }
 }

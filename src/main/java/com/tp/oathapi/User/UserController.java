@@ -36,9 +36,9 @@ public class UserController {
     public void registerUser(@RequestBody User user) {
         userService.addUser(user);
     }
-    @GetMapping("/otp/generate/{userId}")
-    public ResponseEntity<String> generateOtp(@PathVariable Long userId) {
-        String otp = userService.generateOtp(userId);
+    @GetMapping("/otp/generate/{email}")
+    public ResponseEntity<String> generateOtp(@PathVariable String email) {
+        String otp = userService.generateOtp(email);
         if(otp == null){
             return new ResponseEntity<>("Unauthorized access",HttpStatus.UNAUTHORIZED);
         }
@@ -47,10 +47,10 @@ public class UserController {
         }
         return ResponseEntity.ok(otp);
     }
-    @GetMapping("/otp/validate/{userId}")
-    public ResponseEntity<String> validateOtp(@PathVariable Long userId, @RequestParam("otp") String otp) {
-        if(userService.validateOtp(userId,otp) != null) {
-            userService.setValidOtp(userId,otp);
+    @GetMapping("/otp/validate/{email}")
+    public ResponseEntity<String> validateOtp(@PathVariable String email, @RequestParam("otp") String otp) {
+        if(userService.validateOtp(email,otp) != null) {
+            userService.setValidOtp(email,otp);
             return ResponseEntity.ok("Valid OTP");
         }
         return new ResponseEntity<>("Invalid OTP", HttpStatus.UNAUTHORIZED);
