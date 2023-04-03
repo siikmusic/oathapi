@@ -58,7 +58,7 @@ public class UserService {
 
             try {
 
-                TOTP totp = new TOTP(user.getPkey().getBytes(),6,30,15,10);
+                TOTP totp = new TOTP(user.getPkey().getBytes(),6,30,300,10);
                 Calendar calendar = Calendar.getInstance();
                 MailSenderService emailSenderService = new MailSenderService();
                 emailSenderService.sendEmail(user.getEmail(),"OTP",totp.generate(calendar.getTimeInMillis()));
@@ -84,7 +84,7 @@ public class UserService {
             String key = user.getPkey();
 
             try {
-                TOTP totp = new TOTP(key.getBytes(),6,30,15,10);
+                TOTP totp = new TOTP(key.getBytes(),6,30,300,10);
                 Calendar calendar = Calendar.getInstance();
 
                 try {
