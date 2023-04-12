@@ -26,13 +26,13 @@ public class UserService {
     }
     public void addUser(User user) {
         Optional<User> userByEmail =  userRepository.findUserByEmail(user.getEmail());
-        if(userByEmail.isPresent()) {
-            throw new IllegalStateException("email taken");
+        User validUser;
+        if(userByEmail.isEmpty()) {
+            validUser = new User(user.getEmail());
+            validUser.generatePkey();
+            userRepository.save(validUser);
         }
-        User validUser = new User(user.getEmail());
-        String key = validUser.generatePkey();
 
-        userRepository.save(validUser);
     }
 
     public String generateKey(User user){
