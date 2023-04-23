@@ -84,7 +84,7 @@ public class UserService {
             String key = user.getPkey();
 
             try {
-                TOTP totp = new TOTP(key.getBytes(),6,30,300,10);
+                TOTP totp = new TOTP(key.getBytes(),6,360,2,0);
                 Calendar calendar = Calendar.getInstance();
 
                 try {
