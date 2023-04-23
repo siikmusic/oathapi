@@ -22,10 +22,6 @@ public class UserController {
     }
 
 
-    @GetMapping
-    public List<User> getUsers() {
-        return userService.getUsers();
-    }
     @GetMapping("{userId}/key")
     public String generatePKey(@PathVariable Long userId) {
         User user = userService.getUser(userId);
