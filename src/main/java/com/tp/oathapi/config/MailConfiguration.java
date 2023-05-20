@@ -1,4 +1,4 @@
-package com.tp.oathapi;
+package com.tp.oathapi.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

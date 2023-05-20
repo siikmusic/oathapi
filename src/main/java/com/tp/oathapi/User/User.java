@@ -1,5 +1,5 @@
 package com.tp.oathapi.User;
-import com.tp.oathapi.RandomString;
+import com.tp.oathapi.util.RandomString;
 import jakarta.persistence.*;
 
 

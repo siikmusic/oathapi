@@ -1,13 +1,12 @@
 package com.tp.oathapi.User;
 
-import com.tp.oathapi.MailSenderService;
+import com.tp.oathapi.service.MailSenderService;
 import com.tp.oathapi.link.oath.*;
 import com.tp.oathapi.ocra.OcraRequest;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
@@ -24,14 +23,16 @@ public class UserService {
     public List<User> getUsers() {
             return userRepository.findAll();
     }
-    public void addUser(User user) {
+    public boolean addUser(UserRequest user) {
         Optional<User> userByEmail =  userRepository.findUserByEmail(user.getEmail());
         User validUser;
         if(userByEmail.isEmpty()) {
             validUser = new User(user.getEmail());
             validUser.generatePkey();
             userRepository.save(validUser);
+            return true;
         }
+        return false;
 
     }
 
@@ -54,6 +55,7 @@ public class UserService {
     public String generateOtp(String email) {
         Optional<User> userOptional = userRepository.findUserByEmail(email);
         if(userOptional.isPresent()) {
+            System.out.println("User Present");
             User user = userOptional.get();
 
             try {
@@ -69,6 +71,8 @@ public class UserService {
 
             }
         }
+        System.out.println("User not Present");
+
         return "";
     }
 

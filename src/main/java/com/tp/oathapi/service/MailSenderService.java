@@ -1,5 +1,6 @@
-package com.tp.oathapi;
+package com.tp.oathapi.service;
 
+import com.tp.oathapi.config.MailConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;

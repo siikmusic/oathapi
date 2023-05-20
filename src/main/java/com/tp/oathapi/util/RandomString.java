@@ -1,4 +1,4 @@
-package com.tp.oathapi;
+package com.tp.oathapi.util;
 
 import java.security.SecureRandom;
 import java.util.Locale;
