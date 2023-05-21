@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Objects;
+
 @Tag(name = "User", description = "User OTP API")
 @RestController
 @RequestMapping("api/v1/user")
@@ -96,8 +98,11 @@ public class UserController {
     @PostMapping("/ocra/v2/validate")
     public ResponseEntity<String> validateOcraV2(@RequestBody OcraRequest request) {
         try {
-            userService.validateOcra(request);
-            return new ResponseEntity<>("Valid OCRA", HttpStatus.OK);
+            String response = userService.validateOcra(request);
+            if (Objects.equals(response, "valid")){
+                return new ResponseEntity<>("Valid OCRA", HttpStatus.OK);
+            }
+            return new ResponseEntity<>("Invalid Request", HttpStatus.UNAUTHORIZED);
 
         } catch (InvalidOcraSuiteException | InvalidDataModeException | InvalidHashException | InvalidCryptoFunctionException | InvalidSessionException | InvalidQuestionException | NoSuchAlgorithmException e) {
             e.printStackTrace();

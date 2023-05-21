@@ -119,12 +119,9 @@ public class UserService {
         List<Counter> counterOptional = counterRepository.findAll();
 
         if (counterOptional.isEmpty()) {
-            System.out.println("Empty");
             return null;
         }
-        System.out.println(counterOptional.get(0).getCounter());
 
-        System.out.println(request.getEmail());
         Counter counter = counterOptional.get(0);
         OCRA ocra = new OCRA(ocraSuite,user.getPkey().getBytes(),0,30,0);
         Calendar calendar = Calendar.getInstance();
@@ -162,10 +159,9 @@ public class UserService {
 
         OCRA ocra = new OCRA(ocraSuite,user.getPkey().getBytes(),0,30,0);
         Calendar calendar = Calendar.getInstance();
-        System.out.println(request.getHash());
         try {
             ocra.validate(counter.getCounter(),request.getHash(),"","",calendar.getTimeInMillis(),request.getQuestion());
-            counter.incrementCounter();
+            counter.setCounter(counter.getCounter() + 1);
             counterRepository.save(counter);
             return "valid";
         } catch (InvalidResponseException e) {
