@@ -66,8 +66,9 @@ public class UserService {
                 TOTP totp = new TOTP(user.getPkey().getBytes(),6,360,2,0);
                 Calendar calendar = Calendar.getInstance();
                 MailSenderService emailSenderService = new MailSenderService();
-                emailSenderService.sendEmail(user.getEmail(),"OTP",totp.generate(calendar.getTimeInMillis()));
-                return totp.generate(calendar.getTimeInMillis());
+                String otp =totp.generate(calendar.getTimeInMillis());
+                emailSenderService.sendEmail(user.getEmail(),"OTP From FEI Banking System: "+otp,otp);
+                return otp;
             } catch (InvalidKeyException e) {
                 e.printStackTrace();
                 return "";

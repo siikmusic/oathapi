@@ -16,7 +16,7 @@ public class MailSenderService {
         MailConfiguration mailConfiguration = new MailConfiguration();
         mailSender = mailConfiguration.getJavaMailSender();
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("jock8musicchannel@gmail.com");
+        message.setFrom("feitpotp@gmail.com");
         message.setTo(toEmail);
         message.setText(body);
         message.setSubject(subject);
