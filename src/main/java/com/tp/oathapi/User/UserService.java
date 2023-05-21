@@ -160,9 +160,8 @@ public class UserService {
         OCRA ocra = new OCRA(ocraSuite,user.getPkey().getBytes(),0,30,0);
         Calendar calendar = Calendar.getInstance();
         try {
-            ocra.validate(counter.getCounter(),request.getHash(),"","",calendar.getTimeInMillis(),request.getQuestion());
-            System.out.println(counter.getCounter());
-            counter.setCounter(counter.getCounter() + 1);
+            OCRAState state= ocra.validate(counter.getCounter(),request.getHash(),"","",calendar.getTimeInMillis(),request.getQuestion());
+            counter.setCounter((int) state.newCounter);
             counterRepository.save(counter);
             return "valid";
         } catch (InvalidResponseException e) {
