@@ -111,9 +111,9 @@ public class UserService {
 
     public String generateOcra(OcraRequest request) throws InvalidOcraSuiteException, InvalidDataModeException, InvalidHashException, InvalidCryptoFunctionException, InvalidSessionException, InvalidQuestionException, NoSuchAlgorithmException {
         Optional<User> userOptional = userRepository.findUserByEmail(request.getEmail());
-        System.out.println(request.getEmail());
         if(userOptional.isEmpty()) return null;
         User user = userOptional.get();
+        System.out.println(request.getEmail());
         Optional<Counter> counterOptional = counterRepository.findCounterById(1L);
         if (counterOptional.isEmpty()) return null;
         Counter counter = counterOptional.get();
