@@ -12,7 +12,9 @@ public class Counter {
 
     public Counter() {
     }
-
+    public Counter(Integer counter) {
+        this.counter = counter;
+    }
     public Integer getCounter(){
         return this.counter;
     }
