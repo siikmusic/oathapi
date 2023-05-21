@@ -161,6 +161,7 @@ public class UserService {
         Calendar calendar = Calendar.getInstance();
         try {
             ocra.validate(counter.getCounter(),request.getHash(),"","",calendar.getTimeInMillis(),request.getQuestion());
+            System.out.println(counter.getCounter());
             counter.setCounter(counter.getCounter() + 1);
             counterRepository.save(counter);
             return "valid";
