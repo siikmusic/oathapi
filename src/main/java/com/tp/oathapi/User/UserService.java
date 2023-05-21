@@ -117,7 +117,7 @@ public class UserService {
         User user = userOptional.get();
 
 
-        Optional<Counter> counterOptional = counterRepository.findCounterById(1L);
+        Optional<Counter> counterOptional = counterRepository.findFirstById(1L);
 
         if (counterOptional.isEmpty()) return null;
         System.out.println(request.getEmail());
