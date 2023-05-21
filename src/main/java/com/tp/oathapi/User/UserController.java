@@ -81,7 +81,10 @@ public class UserController {
         try {
             String response = userService.generateOcra(request);
             if (response == null){
-                return new ResponseEntity<>("Invalid Request", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>("No counter", HttpStatus.BAD_REQUEST);
+            } else if (response.equals("user")){
+                return new ResponseEntity<>("No User", HttpStatus.BAD_REQUEST);
+
             }
             return ResponseEntity.ok("Ocra Sent");
         } catch (InvalidOcraSuiteException | InvalidDataModeException | InvalidHashException | InvalidCryptoFunctionException | InvalidSessionException | InvalidQuestionException | NoSuchAlgorithmException e) {

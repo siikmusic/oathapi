@@ -112,16 +112,20 @@ public class UserService {
     public String generateOcra(OcraRequest request) throws InvalidOcraSuiteException, InvalidDataModeException, InvalidHashException, InvalidCryptoFunctionException, InvalidSessionException, InvalidQuestionException, NoSuchAlgorithmException {
         Optional<User> userOptional = userRepository.findUserByEmail(request.getEmail());
 
-        if(userOptional.isEmpty()) return null;
+        if(userOptional.isEmpty()) return "user";
 
         User user = userOptional.get();
 
+        List<Counter> counterOptional = counterRepository.findAll();
 
-        Optional<Counter> counterOptional = counterRepository.findFirstById(1L);
+        if (counterOptional.isEmpty()) {
+            System.out.println("Empty");
+            return null;
+        }
+        System.out.println(counterOptional.get(0).getCounter());
 
-        if (counterOptional.isEmpty()) return null;
         System.out.println(request.getEmail());
-        Counter counter = counterOptional.get();
+        Counter counter = counterOptional.get(0);
         OCRA ocra = new OCRA(ocraSuite,user.getPkey().getBytes(),0,30,0);
         Calendar calendar = Calendar.getInstance();
         String ocraString = ocra.generate(counter.getCounter(),request.getHash(),"","",calendar.getTimeInMillis());
