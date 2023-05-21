@@ -38,7 +38,7 @@ public class UserController {
     public ResponseEntity<String> registerUser(@RequestBody UserRequest user) {
 
         boolean added = userService.addUser(user);
-        if (added){
+        if (!added){
             return new ResponseEntity<>("User already exists", HttpStatus.BAD_REQUEST);
         }
         return ResponseEntity.ok("Added user");
@@ -76,6 +76,25 @@ public class UserController {
         }
         return new ResponseEntity<>("Invalid OTP", HttpStatus.UNAUTHORIZED);
     }
+    @PostMapping("/ocra/v2/generate")
+    public ResponseEntity<String> generateOcraV2(@RequestBody OcraRequest request) {
+        try {
+            userService.generateOcraV2(request);
+            return ResponseEntity.ok("Ocra Sent");
+        } catch (InvalidOcraSuiteException | InvalidDataModeException | InvalidHashException | InvalidCryptoFunctionException | InvalidSessionException | InvalidQuestionException | NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("Invalid Request", HttpStatus.UNAUTHORIZED);
 
+        }
+    }
+    @PostMapping("/ocra/v2/validate")
+    public String validateOcraV2(@RequestBody OcraRequest request) {
+        try {
+            return userService.validateOcraV2(request);
+        } catch (InvalidOcraSuiteException | InvalidDataModeException | InvalidHashException | InvalidCryptoFunctionException | InvalidSessionException | InvalidQuestionException | NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
 }

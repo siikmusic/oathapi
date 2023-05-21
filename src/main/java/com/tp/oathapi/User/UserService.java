@@ -109,12 +109,9 @@ public class UserService {
     public String generateOcra(OcraRequest request) throws InvalidOcraSuiteException, InvalidDataModeException, InvalidHashException, InvalidCryptoFunctionException, InvalidSessionException, InvalidQuestionException, NoSuchAlgorithmException {
         User user = getUser(request.getUserId());
         if(user == null) return null;
-        String key = user.getPkey();
 
-        OCRASuite ocraSuite = new OCRASuite("OCRA-1:HOTP-SHA256-8:C-QA08");
         OCRA ocra = new OCRA(ocraSuite,user.getPkey().getBytes(),0,30,0);
         Calendar calendar = Calendar.getInstance();
-        System.out.println(request.getHash());
         return ocra.generate(Long.parseLong(request.getOtp()),request.getHash(),"","",calendar.getTimeInMillis());
     }
 
@@ -140,14 +137,11 @@ public class UserService {
     public String validateOcra(OcraRequest request) throws InvalidOcraSuiteException, InvalidDataModeException, InvalidHashException, InvalidCryptoFunctionException, InvalidSessionException, InvalidQuestionException, NoSuchAlgorithmException {
         User user = getUser(request.getUserId());
         if(user == null) return null;
-        String sha256hex = DigestUtils.sha256Hex(request.getKey());
-        if(!user.getPkey().equals(sha256hex)) {
-            return "unauthorized";
-        }
-     /*   if(validateOtp(request.getUserId(),request.getOtp()) == null){
+
+      if(validateOtp(user.getEmail(),request.getOtp()) == null){
             System.out.println("invalid otp");
             return null;
-        }*/
+        }
 
         OCRA ocra = new OCRA(ocraSuite,user.getPkey().getBytes(),0,30,0);
         Calendar calendar = Calendar.getInstance();
@@ -164,7 +158,7 @@ public class UserService {
         User user = getUser(request.getUserId());
         if(user == null) return "invalid user";
 
-        String sha256hex = DigestUtils.sha256Hex(request.getKey());
+        String sha256hex = request.getKey();
         if(!user.getPkey().equals(sha256hex)) {
             return "unauthorized";
         }
