@@ -162,6 +162,7 @@ public class UserService {
         try {
             OCRAState state= ocra.validate(counter.getCounter(),request.getHash(),"","",calendar.getTimeInMillis(),request.getQuestion());
             counter.setCounter((int) state.newCounter);
+            System.out.println(counter.getCounter());
             counterRepository.save(counter);
             return "valid";
         } catch (InvalidResponseException e) {
