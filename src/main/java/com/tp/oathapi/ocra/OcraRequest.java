@@ -3,6 +3,7 @@ package com.tp.oathapi.ocra;
 public class OcraRequest {
     private Long userId;
     private String otp;
+    private String email;
     private String transactionData;
     private String hash;
     private String question;
@@ -61,5 +62,9 @@ public class OcraRequest {
 
     public void setKey(String key) {
         this.key = key;
+    }
+
+    public String getEmail() {
+        return this.email;
     }
 }

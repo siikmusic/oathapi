@@ -1,5 +1,7 @@
 package com.tp.oathapi.User;
 
+import com.tp.oathapi.Counter.Counter;
+import com.tp.oathapi.Counter.CounterRepository;
 import com.tp.oathapi.service.MailSenderService;
 import com.tp.oathapi.link.oath.*;
 import com.tp.oathapi.ocra.OcraRequest;
@@ -13,10 +15,11 @@ import java.util.*;
 @Service
 public class UserService {
     private final UserRepository userRepository;
-
+    private final CounterRepository counterRepository;
     @Autowired
-    public UserService(UserRepository userRepository) throws InvalidOcraSuiteException, InvalidDataModeException, InvalidHashException, InvalidCryptoFunctionException {
+    public UserService(UserRepository userRepository, CounterRepository counterRepository) throws InvalidOcraSuiteException, InvalidDataModeException, InvalidHashException, InvalidCryptoFunctionException {
         this.userRepository = userRepository;
+        this.counterRepository = counterRepository;
     }
     private final OCRASuite ocraSuite = new OCRASuite("OCRA-1:HOTP-SHA256-8:QA08");
 
@@ -107,12 +110,17 @@ public class UserService {
     }
 
     public String generateOcra(OcraRequest request) throws InvalidOcraSuiteException, InvalidDataModeException, InvalidHashException, InvalidCryptoFunctionException, InvalidSessionException, InvalidQuestionException, NoSuchAlgorithmException {
-        User user = getUser(request.getUserId());
-        if(user == null) return null;
+        Optional<User> userOptional = userRepository.findUserByEmail(request.getEmail());
+        if(userOptional.isEmpty()) return null;
+        User user = userOptional.get();
+        Counter counter = counterRepository.findCounterById(1L).get();
 
         OCRA ocra = new OCRA(ocraSuite,user.getPkey().getBytes(),0,30,0);
         Calendar calendar = Calendar.getInstance();
-        return ocra.generate(Long.parseLong(request.getOtp()),request.getHash(),"","",calendar.getTimeInMillis());
+        String ocraString = ocra.generate(counter.getCounter(),request.getHash(),"","",calendar.getTimeInMillis());
+        MailSenderService emailSenderService = new MailSenderService();
+        emailSenderService.sendEmail(user.getEmail(),"OCRA",ocraString);
+        return ocraString;
     }
 
     public String generateOcraV2(OcraRequest request) throws InvalidOcraSuiteException, InvalidDataModeException, InvalidHashException, InvalidCryptoFunctionException, InvalidSessionException, InvalidQuestionException, NoSuchAlgorithmException {
@@ -135,19 +143,19 @@ public class UserService {
     }
 
     public String validateOcra(OcraRequest request) throws InvalidOcraSuiteException, InvalidDataModeException, InvalidHashException, InvalidCryptoFunctionException, InvalidSessionException, InvalidQuestionException, NoSuchAlgorithmException {
-        User user = getUser(request.getUserId());
-        if(user == null) return null;
+        Optional<User> userOptional = userRepository.findUserByEmail(request.getEmail());
+        if(userOptional.isEmpty()) return null;
+        User user = userOptional.get();
 
-      if(validateOtp(user.getEmail(),request.getOtp()) == null){
-            System.out.println("invalid otp");
-            return null;
-        }
+        Counter counter = counterRepository.findCounterById(1L).get();
 
         OCRA ocra = new OCRA(ocraSuite,user.getPkey().getBytes(),0,30,0);
         Calendar calendar = Calendar.getInstance();
         System.out.println(request.getHash());
         try {
-            ocra.validate(Long.parseLong(request.getOtp()),request.getHash(),"","",calendar.getTimeInMillis(),request.getQuestion());
+            ocra.validate(counter.getCounter(),request.getHash(),"","",calendar.getTimeInMillis(),request.getQuestion());
+            counter.incrementCounter();
+            counterRepository.save(counter);
             return "valid";
         } catch (InvalidResponseException e) {
             return null;

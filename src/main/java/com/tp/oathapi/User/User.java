@@ -2,9 +2,6 @@ package com.tp.oathapi.User;
 import com.tp.oathapi.util.RandomString;
 import jakarta.persistence.*;
 
-
-
-
 @Entity
 @Table(name = "users")
 public class User {
