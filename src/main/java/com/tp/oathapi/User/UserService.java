@@ -132,24 +132,7 @@ public class UserService {
         return ocraString;
     }
 
-    public String generateOcraV2(OcraRequest request) throws InvalidOcraSuiteException, InvalidDataModeException, InvalidHashException, InvalidCryptoFunctionException, InvalidSessionException, InvalidQuestionException, NoSuchAlgorithmException {
-        User user = getUser(request.getUserId());
-        if(user == null) return null;
-        String sha256hex = DigestUtils.sha256Hex(request.getKey());
-        if(!user.getPkey().equals(sha256hex)) {
-            return "unauthorized";
-        }
 
-        OCRA ocra = new OCRA(ocraSuite,request.getKey().getBytes(),0,30,0);
-        Calendar calendar = Calendar.getInstance();
-
-
-        MailSenderService emailSenderService = new MailSenderService();
-        String ocraString = ocra.generate(1,request.getHash(),"","",calendar.getTimeInMillis());
-        emailSenderService.sendEmail(user.getEmail(),"Ocra",ocraString);
-
-        return ocraString;
-    }
 
     public String validateOcra(OcraRequest request) throws InvalidOcraSuiteException, InvalidDataModeException, InvalidHashException, InvalidCryptoFunctionException, InvalidSessionException, InvalidQuestionException, NoSuchAlgorithmException {
         Optional<User> userOptional = userRepository.findUserByEmail(request.getEmail());
@@ -171,27 +154,7 @@ public class UserService {
         }
     }
 
-    public String validateOcraV2(OcraRequest request) throws InvalidOcraSuiteException, InvalidDataModeException, InvalidHashException, InvalidCryptoFunctionException, InvalidSessionException, InvalidQuestionException, NoSuchAlgorithmException {
-        User user = getUser(request.getUserId());
-        if(user == null) return "invalid user";
 
-        String sha256hex = request.getKey();
-        if(!user.getPkey().equals(sha256hex)) {
-            return "unauthorized";
-        }
-
-        OCRA ocra = new OCRA(ocraSuite,request.getKey().getBytes(),0,30,0);
-        Calendar calendar = Calendar.getInstance();
-        System.out.println(request.getKey());
-        try {
-            String ocraString = ocra.generate(1,request.getHash(),"","",calendar.getTimeInMillis());
-            System.out.println(ocraString+" "+request.getQuestion());
-            ocra.validate(1,request.getHash(),"","",calendar.getTimeInMillis(),request.getQuestion());
-            return "valid";
-        } catch (InvalidResponseException e) {
-            return null;
-        }
-    }
 
     public void setValidOtp(String email, String otp) {
         User user = getUser(email);

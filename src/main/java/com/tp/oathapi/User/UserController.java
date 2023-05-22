@@ -19,7 +19,7 @@ import java.util.Objects;
 
 @Tag(name = "User", description = "User OTP API")
 @RestController
-@RequestMapping("api/v1/user")
+@RequestMapping("user/")
 public class UserController {
 
     private final UserService userService;
@@ -78,7 +78,14 @@ public class UserController {
         }
         return new ResponseEntity<>("Invalid OTP", HttpStatus.UNAUTHORIZED);
     }
-    @PostMapping("/ocra/v2/generate")
+    @Operation(
+            summary = "Generate OCRA",
+            description = "Generate a OCRA value for a user email and send it to the email.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema()) }),
+            @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema()) }),
+            @ApiResponse(responseCode = "401", content = { @Content(schema = @Schema()) }) })
+    @PostMapping("/ocra/generate")
     public ResponseEntity<String> generateOcraV2(@RequestBody OcraRequest request) {
         try {
             String response = userService.generateOcra(request);
@@ -95,7 +102,14 @@ public class UserController {
 
         }
     }
-    @PostMapping("/ocra/v2/validate")
+    @Operation(
+            summary = "Validate OCRA",
+            description = "Validate a OCRA value.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema()) }),
+            @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema()) }),
+            @ApiResponse(responseCode = "401", content = { @Content(schema = @Schema()) }) })
+    @PostMapping("/ocra/validate")
     public ResponseEntity<String> validateOcraV2(@RequestBody OcraRequest request) {
         try {
             String response = userService.validateOcra(request);
